@@ -74,7 +74,7 @@ module.exports = function(options) {
 	loaded = true
     }
     module.API = function(plugin,options) {
-	require(plugin)(options)
+	require("server-"+plugin)(options)
 	return module
     }
     module.start = function() {
