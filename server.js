@@ -77,13 +77,19 @@ module.exports = function(options) {
 	require("server-"+plugin)(options)
 	return module
     }
-    module.start = function() {
+    module.start = function(host) {
 	// if already started, return?
 	if (opts.http) {
 	    Log("server.js:Starting HTTP")
-	    http.createServer(app).listen(port, function() {
-		Log("server.js:HTTP listening on port ",port)
-	    })
+	    if (host) {
+		http.createServer(app).listen(port, host, function() {
+		    Log("server.js:HTTP listening on "+host+" port ",port)
+		})
+	    } else {
+		http.createServer(app).listen(port, function() {
+		    Log("server.js:HTTP listening on port ",port)
+		})
+	    }
 	}
 	var creds = { }
 	if (opts.https) {
