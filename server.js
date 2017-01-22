@@ -73,7 +73,7 @@ module.exports = function(options) {
 	loaded = true
     }
     module.API = function(plugin,options) {
-	require("server-"+plugin)(express,options)
+	require("server-"+plugin)(app,express,options)
 	return module
     }
     module.start = function(host) {
