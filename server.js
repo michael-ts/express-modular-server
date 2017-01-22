@@ -53,7 +53,6 @@ module.exports = function(options) {
     }
     if (!loaded) {
 	Log("server.js required")
-	module.app = app
 	app.disable("x-powered-by")
 	app.use(LogRequest)
 	app.use(function(req, res, next) {
@@ -74,7 +73,7 @@ module.exports = function(options) {
 	loaded = true
     }
     module.API = function(plugin,options) {
-	require("server-"+plugin)(options)
+	require("server-"+plugin)(express,options)
 	return module
     }
     module.start = function(host) {
