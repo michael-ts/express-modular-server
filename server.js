@@ -79,7 +79,7 @@ module.exports = function(options) {
     module.start = function(host) {
 	// if already started, return?
 	if (opts.http) {
-	    if (opts.http > 0) port = opts.http
+	    if (opts.http !== true) port = opts.http
 	    Log("server.js:Starting HTTP")
 	    if (host) {
 		http.createServer(app).listen(port, host, function() {
