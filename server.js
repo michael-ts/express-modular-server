@@ -24,7 +24,7 @@ function LogRequest(req,res,next) {
     next()
 }
 
-var express = require("express"),
+var express = require("express-streamline"),
     http = require("http"),
     https = require("https"),
     app = express(),
