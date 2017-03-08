@@ -82,7 +82,7 @@ module.exports = function(options) {
 	}
 	dir.pop()
 	dir = dir.join("/")
-	var services = autoload(dir)
+	var services = autoload(dir,{deep:false,json:false})
 	for (i in services) {
 	    services[i](app,express,options)
 	}
