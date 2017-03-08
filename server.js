@@ -92,7 +92,7 @@ module.exports = function(options) {
     module.start = function(host) {
 	// if already started, return?
 	if (opts.http) {
-	    if (opts.http !== true) port = opts.http
+	    if (typeof opts.http == "number") port = opts.http
 	    Log("server.js:Starting HTTP")
 	    if (host) {
 		http.createServer(app).listen(port, host, function() {
@@ -106,7 +106,6 @@ module.exports = function(options) {
 	}
 	var creds = { }
 	if (opts.https) {
-	    if (opts.https !== true) port = opts.https
 	    Log("server.js:Starting HTTPS")
 	    for (var i in opts.https) {
 		var dir = opts.https[i]
