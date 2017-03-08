@@ -31,7 +31,7 @@ var express = require("express-streamline"),
     port = Number(process.env.PORT || 8080),
     tls = require("tls"),
     fs = require("fs"),
-    autoload = require("autoload")
+    autoload = require("auto-load")
 
 var opts = { }
 var loaded
