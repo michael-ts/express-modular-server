@@ -30,7 +30,8 @@ var express = require("express"),
     app = express(),
     port = Number(process.env.PORT || 8080),
     tls = require("tls"),
-    fs = require("fs")
+    fs = require("fs"),
+    autoload = require("autoload")
 
 var opts = { }
 var loaded
@@ -73,7 +74,19 @@ module.exports = function(options) {
 	loaded = true
     }
     module.API = function(plugin,options) {
-	require("server-"+plugin)(app,express,options)
+	var i, dir, service = "service-"+plugin
+	try {
+	    dir = require.resolve(service).split("/")
+	} catch(e) {
+	    dir = require.resolve("server-"+plugin).split("/")
+	}
+	dir.pop()
+	dir = dir.join("/")
+	var services = autoload(dir)
+	for (i in services) {
+	    services[i](app,express,options)
+	}
+	//require(service)(app,express,options)
 	return module
     }
     module.start = function(host) {
@@ -93,6 +106,7 @@ module.exports = function(options) {
 	}
 	var creds = { }
 	if (opts.https) {
+	    if (opts.https !== true) port = opts.https
 	    Log("server.js:Starting HTTPS")
 	    for (var i in opts.https) {
 		var dir = opts.https[i]
