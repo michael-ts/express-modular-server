@@ -4,6 +4,7 @@ global.btoa = function (str) {return new Buffer(str).toString("base64")}
 global.atob = function (str) {return new Buffer(str, "base64").toString()};
 
 var log = [ ]
+var path = require("path")
 global.Log = function() {
     var t = (new Date()).toISOString()
     var data = t+":"+Array.prototype.slice.call(arguments).join("")
@@ -76,12 +77,12 @@ module.exports = function(options) {
     module.API = function(plugin,options) {
 	var i, dir, service = "service-"+plugin
 	try {
-	    dir = require.resolve(service).split("/")
+	    dir = require.resolve(service).split(path.sep)
 	} catch(e) {
-	    dir = require.resolve("server-"+plugin).split("/")
+	    dir = require.resolve("server-"+plugin).split(path.sep)
 	}
 	dir.pop()
-	dir = dir.join("/")
+	dir = dir.join(path.sep)
 	var services = autoload(dir,{deep:false,json:false})
 	for (i in services) {
 	    services[i](app,express,options)
