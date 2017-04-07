@@ -28,27 +28,31 @@ The following example configures a single http server on the default port (8080)
 The following configuration keys are recognized:
 
 ##http
-When this key is present, express.js will service requests using the `http` network protocol.  If this value is `true` the default port is used.   If the environment variable `PORT` is present, its numerical values is used as the default, otherwise `8080` is the default.  If this value is a number, the specified number is used.  An invalid valid may also be interpreted as using the default.
+When this key is present, express.js will service requests using the `http` network protocol.  If this value is `true` the default port is used.   If the environment variable `PORT` is present, its numerical values is used as the default, otherwise `8080` is the default.  If this value is a number, the specified number is used.  An invalid value may also be interpreted as using the default.
 
 ##https
-When this key is present, express.js will service requests using the `https` network protocol.   The value of this key must be an object contains keys which are the host name to listen on, and values corresponding to the directory containing the credentials files for each server.   The following files must be present: `cert.pem` containing the SSL certificate for the host name, `privkey.pem` containing the private key, and `chain.pem` containing the SSL chain.
+When this key is present, express.js will service requests using the `https` network protocol.   The value of this key must be an object containing keys which are the host name to listen on, and values corresponding to the directory containing the credentials files for each server.   The following files must be present in each directory: `cert.pem` containing the SSL certificate for the host name, `privkey.pem` containing the private key, and `chain.pem` containing the SSL chain.
 
 ##log
-This key can be either a string, or an array of strings.  Each string specifies the path to a file to log messages logged by the `Log` function.  If not log is specifed, messages will be logged to the console.
+This key can be either a string, or an array of strings.  Each string specifies the path to a file to log messages logged by the `Log` function.  If no log is specifed, messages will be logged to the console.
 
-In addition, all requests that express.js is about to service will be logged with the format:
+In addition to calls to the `Log` function, all requests that express.js is about to service will be logged with the format:
 
     <ISO8601Time>:<IPAddress>:<METHOD> <URL>
 
 # Plug-ins
 
-A plug-in is a separate package that adheres to the API.  Its name must begin with `service-`.  The `API` call to load this plug-in must omit this prefix.  The top-level code invoking the server must include all plug-ins used in its list of dependencies.
+A plug-in is a separate package that adheres to the following conventions.  Its name must begin with `service-`.  The `API` call to load this plug-in must omit this prefix.  The top-level code invoking the server must include all plug-ins used in its list of dependencies.
 
 A plug-in must declare its `module.exports` to be a function taking the following arguments: the `app` express object, the `express` express object, and an `options` argument.  Often the second and third arguments will be optional.   In this function, the plug-in must set up any endpoints via the `app` and/or `express` objects provided, as well as define any functionality needed to service these requests.
 
-The following example defines a GPIO service utilizing the `gpio` function (not shown).  It provides one available option to change the endpoint, and displays an initialization message to the log.
+The following example defines a GPIO service utilizing the `gpio` function.  It provides one available option to change the endpoint, and displays an initialization message to the log.
 
 ```
+function gpio(req,res) {
+    // actual implementation would go here
+}
+
 var endpoint = "/gpio/"
 
 module.exports = function(app,exports,options) {
@@ -56,7 +60,7 @@ module.exports = function(app,exports,options) {
 	    endpoint = options
     }
     Log("service gpio ",endpoint)
-    app.use(endpoint, gpio)
+    app.get(endpoint, gpio)
     
 }
 ```

@@ -1,6 +1,6 @@
 {
   "name": "express-modular-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Modular plug-in framework for express.js",
   "main": "server.js",
   "scripts": {
