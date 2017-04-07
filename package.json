@@ -1,20 +1,28 @@
 {
-  "name": "express-modular-server",
-  "version": "1.0.5",
-  "description": "Modular plug-in framework for express.js",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "auto-load": "^2.1.0",
-    "express": "^4.14.0",
-    "express-streamline": "^0.5.3",
-    "http": "0.0.0",
-    "https": "^1.0.0",
-    "tls": "0.0.1"
-  },
-  "author": "Michael Schmidt <technologic.michael@gmail.com>",
-  "license": "UNLICENSED"
+    "name": "express-modular-server",
+    "version": "1.0.6",
+    "description": "Modular plug-in framework for express.js",
+    "main": "server.js",
+    "scripts": {
+	"test": "echo \"Error: no test specified\" && exit 1",
+	"start": "node server.js"
+    },
+    "dependencies": {
+	"auto-load": "^2.1.0",
+	"express": "^4.14.0",
+	"express-streamline": "^0.5.3",
+	"http": "0.0.0",
+	"https": "^1.0.0",
+	"tls": "0.0.1"
+    },
+    "author": "Michael Schmidt <technologic.michael@gmail.com>",
+    "license": "UNLICENSED",
+    "repository": {
+	"type": "git",
+	"url": "git+ssh://git@github.com/michael-ts/express-modular-server.git"
+    },
+    "bugs": {
+	"url": "https://github.com/michael-ts/express-modular-server/issues"
+    },
+    "homepage": "https://github.com/michael-ts/express-modular-server#readme"    
 }
