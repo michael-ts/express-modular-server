@@ -61,7 +61,6 @@ module.exports = function(app,exports,options) {
     }
     Log("service gpio ",endpoint)
     app.get(endpoint, gpio)
-    
 }
 ```
 
@@ -82,3 +81,11 @@ Converts a buffer to Base-64.  Takes the value to convert as a parameter and ret
 ## btoa
 
 Converts from Base-64.  Takes the value to convert as a parameter and returns the converted value.
+
+# Copyright
+
+Written by Michael Schmidt.
+
+# License
+
+TBD
