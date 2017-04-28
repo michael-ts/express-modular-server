@@ -16,7 +16,7 @@
 	"tls": "0.0.1"
     },
     "author": "Michael Schmidt <technologic.michael@gmail.com>",
-    "license": "UNLICENSED",
+    "license": "GPL 3.0",
     "repository": {
 	"type": "git",
 	"url": "git+ssh://git@github.com/michael-ts/express-modular-server.git"

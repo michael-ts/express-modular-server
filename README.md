@@ -88,4 +88,4 @@ Written by Michael Schmidt.
 
 # License
 
-TBD
+GPL 3.0
