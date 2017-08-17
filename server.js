@@ -1,7 +1,12 @@
 "use strict";
 
+var os = require("os")
+var path=require("path")
+
 global.btoa = function (str) {return new Buffer(str).toString("base64")}
 global.atob = function (str) {return new Buffer(str, "base64").toString()};
+global.HOST=os.hostname()
+global.HOME=os.homedir()
 
 var log = [ ]
 var path = require("path")
@@ -25,6 +30,11 @@ function LogRequest(req,res,next) {
     next()
 }
 
+function check_log(str) {
+    if (str == "default") return "log"+path.sep+HOST+".txt"
+    return str
+}
+
 var express = require("express-streamline"),
     http = require("http"),
     https = require("https"),
@@ -38,11 +48,19 @@ var opts = { }
 var loaded
 module.exports = function(options) {
     if (options) opts = options
-    if (typeof opts == "object" && "log" in opts && log.length == 0) {
+    var mainport=8080
+    if (opts.port) mainport = opts.port
+    if ("PORT" in process.env && Number(process.env.PORT) != mainport) {
+	process.chdir(HOME+path.sep+"node-sandbox")
+	opts.log = [ ]
+    }
+    if ("log" in opts && log.length == 0) {
 	if (typeof opts.log == "string") {
+	    opts.log = check_log(opts.log)
 	    log.push(fs.createWriteStream(opts.log, {flags:"a"}))
 	} else if (opts.log instanceof Array) {
 	    for (var i=0;i<opts.log.length;i++) {
+		opts.log[i] = check_log(opts.log[i])
 		log.push(fs.createWriteStream(opts.log[i], {flags:"a"}))
 	    }
 	}
@@ -80,6 +98,8 @@ module.exports = function(options) {
 	    dir = require.resolve(service).split(path.sep)
 	} catch(e) {
 	    dir = require.resolve("server-"+plugin).split(path.sep)
+	    Log("WARNING: Used old, deprecated 'server' version of service "
+		+plugin)
 	}
 	dir.pop()
 	dir = dir.join(path.sep)
