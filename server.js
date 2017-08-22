@@ -3,6 +3,11 @@
 var os = require("os")
 var path=require("path")
 
+if (typeof os.homedir != "function") {
+    var osHomeDir=require("os-homedir")
+    os.homedir = osHomeDir
+}
+
 global.btoa = function (str) {return new Buffer(str).toString("base64")}
 global.atob = function (str) {return new Buffer(str, "base64").toString()};
 global.HOST=os.hostname()
