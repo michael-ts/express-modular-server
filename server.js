@@ -115,19 +115,22 @@ module.exports = function(options) {
 	//require(service)(app,express,options)
 	return module
     }
-    module.start = function(host) {
-	// if already started, return?
+    module.start = function(host,errf) {
+	if (!errf) errf = function(err) {
+	    console.log("express-modular-server: error starting server:",err)
+	    throw err
+	}
 	if (opts.http) {
 	    if (typeof opts.http == "number") port = opts.http
 	    Log("server.js:Starting HTTP")
 	    if (host) {
 		http.createServer(app).listen(port, host, function() {
 		    Log("server.js:HTTP listening on "+host+" port ",port)
-		})
+		}).once("error",errf)
 	    } else {
 		http.createServer(app).listen(port, function() {
 		    Log("server.js:HTTP listening on port ",port)
-		})
+		}).once("error",errf)
 	    }
 	}
 	var creds = { }
