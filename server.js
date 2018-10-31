@@ -100,16 +100,15 @@ module.exports = function(options) {
 	var i, dir, service = "service-"+plugin
 	try {
 	    dir = require.resolve(service).split(path.sep)
+	    dir.pop()
+	    dir = dir.join(path.sep)
+	    var services = autoload(dir,{deep:false,json:false})
+	    for (i in services) {
+		services[i](app,express,options)
+	    }
 	} catch(e) {
-	    dir = require.resolve("server-"+plugin).split(path.sep)
-	    Log("WARNING: Used old, deprecated 'server' version of service "
-		+plugin)
-	}
-	dir.pop()
-	dir = dir.join(path.sep)
-	var services = autoload(dir,{deep:false,json:false})
-	for (i in services) {
-	    services[i](app,express,options)
+	    console.log("error:",e)
+	    console.log("Ignoring missing "+service+" in ",process.cwd())
 	}
 	//require(service)(app,express,options)
 	return module
