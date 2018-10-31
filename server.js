@@ -40,8 +40,14 @@ function check_log(str) {
     return str
 }
 
-var express = require("express-streamline"),
-    http = require("http"),
+var express
+try {
+    express = require("express-streamline")
+} catch (e) {
+    express = require("express")
+}
+
+var http = require("http"),
     https = require("https"),
     app = express(),
     port = Number(process.env.PORT || 8080),

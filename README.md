@@ -82,6 +82,10 @@ Converts a buffer to Base-64.  Takes the value to convert as a parameter and ret
 
 Converts from Base-64.  Takes the value to convert as a parameter and returns the converted value.
 
+# express-streamline
+
+As of version 1.1.1, express-streamline is now an optional dependency for supporting legacy code.  It will be used if installed, otherwise it the default express module will be used.  New code should use ES6/7 features like Promises or await/async.  If you require express-streamline, you must ensure that it is installed.
+
 # Copyright
 
 Written by Michael Schmidt.
