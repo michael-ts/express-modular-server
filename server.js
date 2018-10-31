@@ -56,7 +56,6 @@ module.exports = function(options) {
     var mainport=8080
     if (opts.port) mainport = opts.port
     if ("PORT" in process.env && Number(process.env.PORT) != mainport) {
-	process.chdir(HOME+path.sep+"node-sandbox")
 	opts.log = [ ]
     }
     if ("log" in opts && log.length == 0) {
