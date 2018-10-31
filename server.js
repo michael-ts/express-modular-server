@@ -110,7 +110,6 @@ module.exports = function(options) {
 	    console.log("error:",e)
 	    console.log("Ignoring missing "+service+" in ",process.cwd())
 	}
-	//require(service)(app,express,options)
 	return module
     }
     module.start = function(host,errf) {
