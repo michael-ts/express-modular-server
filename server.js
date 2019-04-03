@@ -137,6 +137,10 @@ module.exports = function(options) {
 	if (opts.https) {
 	    Log("server.js:Starting HTTPS")
 	    for (var i in opts.https) {
+		if (i == "port") {
+		    port = opts.https[i]
+		    continue
+		}
 		var dir = opts.https[i]
 		creds[i] = tls.createSecureContext({
 		    key: fs.readFileSync(dir+"/privkey.pem", "utf8"),
