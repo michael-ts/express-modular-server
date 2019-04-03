@@ -144,7 +144,7 @@ module.exports = function(options) {
 		    ca: fs.readFileSync(dir+"/chain.pem","utf8")
 		})
 	    }
-	    https.createServer({
+	    var srv = https.createServer({
 		SNICallback: function (domain,cb) {
 		    if (creds[domain]) {
 			if (cb) {
@@ -156,9 +156,16 @@ module.exports = function(options) {
 			throw new Error("No credentials for domain "+domain)
 		    }
 		}
-	    }, app).listen(port, function() {
-		Log("server.js:HTTPS listening on port ",port)
-	    })
+	    }, app)
+	    if (host) {
+		srv.listen(port, host, function() {
+		    Log("server.js:HTTPS listening on "+host+" port ",port)
+		})
+	    } else {
+		srv.listen(port, function() {
+		    Log("server.js:HTTPS listening on port ",port)
+		})
+	    }
 	}
     }
     return module
