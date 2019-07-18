@@ -1,16 +1,14 @@
 {
     "name": "express-modular-server",
-    "version": "1.0.7",
+    "version": "2.0.0",
     "description": "Modular plug-in framework for express.js",
-    "main": "server.js",
+    "main": "index.js",
     "scripts": {
 	"test": "echo \"Error: no test specified\" && exit 1",
 	"start": "node server.js"
     },
     "dependencies": {
-	"auto-load": "^2.1.0",
 	"express": "^4.14.0",
-	"express-streamline": "^0.5.3",
 	"http": "0.0.0",
 	"https": "^1.0.0",
 	"tls": "0.0.1"

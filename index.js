@@ -25,19 +25,19 @@ function LogRequest(req,res,next) {
     next()
 }
 
-var express = require("express-streamline"),
+var express = require("express"),
     http = require("http"),
     https = require("https"),
     app = express(),
     port = Number(process.env.PORT || 8080),
     tls = require("tls"),
-    fs = require("fs"),
-    autoload = require("auto-load")
+    fs = require("fs")
 
 var opts = { }
 var loaded
 module.exports = function(options) {
     if (options) opts = options
+    if (options.express) express = options.express
     if (typeof opts == "object" && "log" in opts && log.length == 0) {
 	if (typeof opts.log == "string") {
 	    log.push(fs.createWriteStream(opts.log, {flags:"a"}))
@@ -72,22 +72,17 @@ module.exports = function(options) {
 	    })
 	    res.sendStatus(200)
 	})
+	if (opts.autoload) ems_autoload(options.autoconfig)
 	loaded = true
     }
     module.API = function(plugin,options) {
-	var i, dir, service = "service-"+plugin
+	var service = "service-"+plugin
 	try {
-	    dir = require.resolve(service).split(path.sep)
+	    console.log(service,require.resolve(service))
+	    require(service)(app,express,options)
 	} catch(e) {
-	    dir = require.resolve("server-"+plugin).split(path.sep)
+	    console.log(e)
 	}
-	dir.pop()
-	dir = dir.join(path.sep)
-	var services = autoload(dir,{deep:false,json:false})
-	for (i in services) {
-	    services[i](app,express,options)
-	}
-	//require(service)(app,express,options)
 	return module
     }
     module.start = function(host) {
@@ -136,3 +131,83 @@ module.exports = function(options) {
     return module
 }
 
+function ems_autoload(autoconf) {
+    var p = path.resolve("."), p0=p, path0
+    console.log("EMS2 begins in ",p)
+    var config = {
+	last: "service-app",
+	disable: [] 
+    }
+    if (typeof autoconf == "object") {
+	for (var i in autoconf) {
+	    config[i] = autoconf[i]
+	}
+    }
+    var last, lastfile
+    while (true) {
+	path0 = p+path.sep+"EMS.cfg"
+	console.log(`looking for ${path0}`)
+	if (fs.existsSync(path0)) {
+	    console.log(`found ${path0}`)
+	    var conf
+	    try {
+		var i
+		conf = JSON.parse(fs.readFileSync(path0))
+		for (i in conf) {
+		    config[i] = conf[i]
+		}
+		if (!config.last) config.last = [ ]
+		else if (typeof config.last == "string") config.last = [ config.last ]
+	    } catch (e) {
+		console.log(`Error parsing ${path0}`)
+	    }
+	    break
+	}
+	if (p == path.sep) break
+	p = path.resolve(p+path.sep+"..")
+    }
+    console.log(`config: ${JSON.stringify(config,null,1)}`)
+    p = p0
+    while (true) {
+	path0 = p+path.sep+"node_modules"
+	console.log(`looking for ${path0}`)
+	if (fs.existsSync(path0)) {
+	    var tmp = fs.readdirSync(path0)
+		.filter(file=>{
+		    return file.slice(0,8) == "service-"
+			&& fs.statSync(path0+path.sep+file).isDirectory()
+		})
+		.map(file=>{
+		    console.log("EMS2:",path0+path.sep+file)
+		    try {
+			if (config.disable.indexOf(file) >= 0) {
+			    console.log(`disabled: ${file}`)
+			    return
+			}
+			if (file == config.last) {
+			    console.log(`deferring load of ${file}`)
+			    last = path0+path.sep+file
+			    lastfile = file
+			    return
+			}
+			var tmp = require(path0+path.sep+file)
+			if (typeof tmp == "function") {
+			    tmp(app, express, config[file])
+			}
+		    } catch (e) {
+			console.log(`error loading ${file}: ${e}`)
+		    }
+		})
+	}
+	if (p == path.sep) break
+	p = path.resolve(p+path.sep+"..")
+    }
+    if (last) {
+	console.log(`loading last ${last}`)
+	var tmp = require(last)
+	if (typeof tmp == "function") {
+	    tmp(app, express, config[lastfile])
+	}
+    }
+    console.log("EMS2 ends")
+}
