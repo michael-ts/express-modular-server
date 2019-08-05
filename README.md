@@ -8,12 +8,78 @@ Framework for handling the details of setting up an express.js server by specify
 
 # Usage
 
-The work is done in the function returned when you require the module.  This function takes a single argument, which is an object taking configuration values.  All functions returns the module, allowing you to chain calls.  The module contains two function: `API` to load a plug-in, and `start` to start the server.  The start function should come last.  However, new code should not use the `API` call and instead should use the `autoload` option to automatically detect and load services.  This allows for service modules to be dynamically added or removed without (in most cases) the need to change the main server module, simply by running "npm install" or "npm uninstall" for the desired service.
+If you just want a HTTP/HTTPS server up and running as fast as possible, install any desired services and webapps and then run the server.
+For example, the following commands will install and run the "hello" server in a new directory:
 
-The following example uses the new "2.0" methodology to autoload all available express-modular-server services:
+    npm install express-modular-server
+    npm install service-app
+    npm install webapp-app
+    npm install webapp-hello
+    node node_modules/express-modular-server/index.js
+
+When started directly from the command line in this way, the default is to create an HTTP server on port 8080, and to autoload all services (node modules named starting with "service-") that it can find in a standard ancestor searching starting in the express-modular-server directory (see the `autoload` parameter below for more details).
+
+This behavior can be altered via environment variables or command line parameters.  The latter takes precedence.
+
+## Command Line Parameters
+
+These take precedence over any environment variables specified.
+
+###   `--port=<HTTP port number>`
+
+Specifies the TCP port to run the HTTP server on.  The default is 8080.
+
+Example:
+Start the HTTP server on port 9000.
+`node node_modules/express-modular-server/index.js --port=9000`
+
+###  `--sslport=<HTTPS port number>`
+
+Specifies the TCP port to run the HTTPS server on.  The default is 8082.
+
+###  `--hosts=<hostname:path[,...]>`
+
+Specifies that the HTTPS server is to be run.  One or more hostname:path pairs separated by commas must be provided.    Each host name is a the full host name to listen on, while the path is the path to a directory which must contain certificate files and private keys.
+
+Example:
+Listen on two hosts: www.example.com and internal.example.com, using port 8500 for HTTP and port 8900 for HTTPS, where the first host has certificate files in /home/michael/.ssl/www.example.com/ and the second in /home/michael/.ssl/internal.example.com/.
+`node node_modules/express-modular-server/index.js --port=8500 --sslport=8900 --hosts=www.example.com:/home/michael/.ssl/www.example.com/,internal.example.com:/home/michael/.ssl/internal.example.com/`
+
+### `--ip=<IP address>`
+
+Specifies the IP address to listen on.  If no IP address is specified, "0.0.0.0" is used.
 
 
+## Environment Variables
 
+###   `PORT=<HTTP port number>`
+
+Specifies the TCP port to run the HTTP server on.  The default is 8080.
+
+###  `SSLPORT=<HTTPS port number>`
+
+Specifies the TCP port to run the HTTPS server on.  The default is 8082.
+
+###  `HOSTS=<hostname:path[,...]>`
+
+Specifies that the HTTPS server is to be run.  One or more hostname:path pairs separated by commas must be provided.    Each host name is a the full host name to listen on, while the path is the path to a directory which must contain certificate files and private keys.
+
+### `IP=<IP address>`
+
+Specifies the IP address to listen on.  If no IP address is specified, "0.0.0.0" is used.
+
+Example:
+Listen on two hosts: www.example.com and internal.example.com, using port 8500 for HTTP and port 8900 for HTTPS, where the first host has certificate files in /home/michael/.ssl/www.example.com/ and the second in /home/michael/.ssl/internal.example.com/.
+`PORT=8500 SSLPORT=8900 HOSTS=www.example.com:/home/michael/.ssl/www.example.com/,internal.example.com:/home/michael/.ssl/internal.example.com/ node node_modules/express-modular-server/index.js`
+
+## API
+
+For greater control, you can require the express-modular-server in your own code and then call API functions on the returned object to start the server.
+
+The work is done in the function returned when you require the module.  This function takes a single argument, which is an object taking configuration values.  All functions returns the module, allowing you to chain calls.  The module contains two function: `API` to load a plug-in, and `start` to start the server.  The start function should come last.  The `API` call  is not used if the `autoload` option is provided and true as this automatically detects and loads services.  This allows for service modules to be dynamically added or removed without (in most cases) the need to change the main server module, simply by running "npm install" or "npm uninstall" for the desired service.
+
+Example:
+Start an HTTP server on port 8080, automatically loading all services modules found.
 ```
 var server = require("express-modular-server")({
     http:true,
@@ -21,8 +87,7 @@ var server = require("express-modular-server")({
 }).start("127.0.0.1")
 ```
 
-The following example uses the old methodology to configure a single http server on the default port (8080) and loads the plug-ins "gpio", "mma8451", "mx28adc", and "app" before starting the server.
-
+Example: Configure a single http server on the default port (8080) and load the service plug-ins "gpio", "mma8451", "mx28adc", and "app" before starting the server.
 ```
 var server = require("express-modular-server")({
   http:true
@@ -34,9 +99,9 @@ var server = require("express-modular-server")({
  .start()
 ```
 
-# Configuration
+# API Configuration
 
-The following configuration keys are recognized:
+When calling the function returned by requiring express-modular-server, the following configuration keys are recognized in the first parameter:
 
 ## http
 When this key is present, express.js will service requests using the `http` network protocol.  If this value is `true` the default port is used.   If the environment variable `PORT` is present, its numerical values is used as the default, otherwise `8080` is the default.  If this value is a number, the specified number is used.  An invalid value may also be interpreted as using the default.
@@ -139,3 +204,4 @@ Written by Michael Schmidt.
 # License
 
 GPL 3.0
+

@@ -30,6 +30,7 @@ var express = require("express"),
     https = require("https"),
     app = express(),
     port = Number(process.env.PORT || 8080),
+    port2 = Number(process.env.SSLPORT || 8082),
     tls = require("tls"),
     fs = require("fs")
 
@@ -123,17 +124,18 @@ module.exports = function(options) {
 			throw new Error("No credentials for domain "+domain)
 		    }
 		}
-	    }, app).listen(port, function() {
-		Log("server.js:HTTPS listening on port ",port)
+	    }, app).listen(port2, function() {
+		Log("server.js:HTTPS listening on port ",port2)
 	    })
 	}
     }
     return module
 }
 
+var verbose
 function ems_autoload(autoconf) {
     var p = path.resolve("."), p0=p, path0
-    console.log("EMS2 begins in ",p)
+    if (verbose) console.log("EMS2 begins in ",p)
     var config = {
 	last: "service-app",
 	disable: [] 
@@ -146,9 +148,9 @@ function ems_autoload(autoconf) {
     var last, lastfile
     while (true) {
 	path0 = p+path.sep+"EMS.cfg"
-	console.log(`looking for ${path0}`)
+	if (verbose) console.log(`looking for ${path0}`)
 	if (fs.existsSync(path0)) {
-	    console.log(`found ${path0}`)
+	    if (verbose) console.log(`found ${path0}`)
 	    var conf
 	    try {
 		var i
@@ -166,11 +168,12 @@ function ems_autoload(autoconf) {
 	if (p == path.sep) break
 	p = path.resolve(p+path.sep+"..")
     }
-    console.log(`config: ${JSON.stringify(config,null,1)}`)
+    if (verbose) console.log(`config: ${JSON.stringify(config,null,1)}`)
     p = p0
+    p = __dirname
     while (true) {
 	path0 = p+path.sep+"node_modules"
-	console.log(`looking for ${path0}`)
+	if (verbose) console.log(`looking for ${path0}`)
 	if (fs.existsSync(path0)) {
 	    var tmp = fs.readdirSync(path0)
 		.filter(file=>{
@@ -178,14 +181,14 @@ function ems_autoload(autoconf) {
 			&& fs.statSync(path0+path.sep+file).isDirectory()
 		})
 		.map(file=>{
-		    console.log("EMS2:",path0+path.sep+file)
+		    if (verbose) console.log("EMS2:",path0+path.sep+file)
 		    try {
 			if (config.disable.indexOf(file) >= 0) {
-			    console.log(`disabled: ${file}`)
+			    if (verbose) console.log(`disabled: ${file}`)
 			    return
 			}
 			if (file == config.last) {
-			    console.log(`deferring load of ${file}`)
+			    if (verbose) console.log(`deferring load of ${file}`)
 			    last = path0+path.sep+file
 			    lastfile = file
 			    return
@@ -203,11 +206,70 @@ function ems_autoload(autoconf) {
 	p = path.resolve(p+path.sep+"..")
     }
     if (last) {
-	console.log(`loading last ${last}`)
+	if (verbose) console.log(`loading last ${last}`)
 	var tmp = require(last)
 	if (typeof tmp == "function") {
 	    tmp(app, express, config[lastfile])
 	}
     }
-    console.log("EMS2 ends")
+    if (verbose) console.log("EMS2 ends")
+}
+
+function process_hosts(hosts,config) {
+    // hostname:path [, ... ]
+    var i,hosts = hosts.split(","), hostobj={}
+    for (i=0;i<hosts.length;i++) {
+	var ha,host,sslpath
+	ha=hosts[i].split(":")
+	host = ha[0]
+	sslpath = ha[1]
+	hostobj[host] = sslpath
+    }
+    config.https = hostobj
+    //delete config.http
+}
+
+/*
+  recognized arguments
+  --port=<HTTP port number>
+  --sslport=<HTTPS port number>
+  --hosts=<hostname:path[,...]>
+
+  arguments override environment variables
+*/
+if (require.main === module) {
+    console.log("Starting Server...")
+    var i, config = {
+	http:true,
+	autoload:true
+    }
+    if (process.env.HOSTS) {
+	// hostname:path [, ... ]
+	var i,hosts = process.env.HOSTS.split(","), hostobj={}
+	for (i=0;i<hosts.length;i++) {
+	    var ha,host,sslpath
+	    ha=hosts[i].split(":")
+	    host = ha[0]
+	    sslpath = ha[1]
+	    hostobj[host] = sslpath
+	}
+	config.https = hostobj
+	//delete config.http
+    }
+    var ip
+    for (i=1;i<process.argv.length;i++) {
+	var arg = process.argv[i].split("=")
+	if (arg.length < 2) continue
+	var name = arg.shift()
+	var value = arg.join("=")
+	switch (name) {
+	case "--port":  port=Number(value); break
+	case "--sslport": port2=Number(value); break
+	case "--hosts": process_hosts(value,config); break
+	case "--ip": ip = value
+	}
+    }
+    module.exports(config).start(ip || process.env.IP || "0.0.0.0")
+} else {
+    // Not called directly, use API interface
 }
